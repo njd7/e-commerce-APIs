@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { AVAILABLE_USER_TYPES } from "../../constants";
+import { AVAILABLE_USER_TYPES } from "../../constants.js";
 
 const userSchema = new mongoose.Schema(
   {
