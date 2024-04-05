@@ -13,6 +13,14 @@ app.use(cookieParser());
 
 // routes import
 
+import authRouter from "./routes/auth.routes.js";
+import buyerRouter from "./routes/buyer.routes.js";
+import sellerRouter from "./routes/seller.routes.js";
+
 // routes declaration
+
+app.use("/api/auth", authRouter);
+app.use("/api/buyer", buyerRouter);
+app.use("/api/seller", sellerRouter);
 
 export default app;
