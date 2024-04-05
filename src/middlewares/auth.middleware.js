@@ -28,3 +28,22 @@ export const verifyJWT = asyncHandler(async (req, _, next) => {
     throw new ApiError(401, error?.message || "Invalid access token");
   }
 });
+
+export const isBuyer = asyncHandler(async (req, _, next) => {
+  if (req?.user?.userType !== "BUYER") {
+    throw new ApiError(
+      401,
+      "Unauthorized! Only BUYER userType can have access"
+    );
+  }
+  next();
+});
+export const isSeller = asyncHandler(async (req, _, next) => {
+  if (req?.user?.userType !== "SELLER") {
+    throw new ApiError(
+      401,
+      "Unauthorized! Only SELLER userType can have access"
+    );
+  }
+  next();
+});

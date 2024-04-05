@@ -10,11 +10,6 @@ const productSchema = new Schema(
       default: 0,
       type: Number,
     },
-    catalog: {
-      type: Schema.Types.ObjectId,
-      ref: "Catalog",
-      required: true,
-    },
     owner: {
       type: Schema.Types.ObjectId,
       ref: "User",
