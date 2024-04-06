@@ -11,6 +11,6 @@ const router = Router();
 router.route("/create-catalog").post(verifyJWT, isSeller, createCatalog);
 router.route("/orders").get(verifyJWT, isSeller, getOrders);
 
-router.route("/create-product").post(verifyJWT, createProduct);
+router.route("/create-product").post(verifyJWT, isSeller, createProduct);
 
 export default router;

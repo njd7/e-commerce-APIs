@@ -12,6 +12,10 @@ const orderItemSchema = new Schema(
       ref: "Product",
       required: true,
     },
+    units: {
+      type: Number,
+      default: 1,
+    },
   },
   { timestamps: true }
 );
