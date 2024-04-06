@@ -1,5 +1,7 @@
 import { Catalog } from "../models/ecommerce/catalog.model.js";
+import { CatalogProduct } from "../models/ecommerce/catalogProduct.model.js";
 import { Order } from "../models/ecommerce/order.model.js";
+import { OrderItem } from "../models/ecommerce/orderItem.model.js";
 import { Product } from "../models/ecommerce/product.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -15,46 +17,70 @@ const createCatalog = asyncHandler(async (req, res) => {
   }
 
   // check if Catalog is already created
-  const prevCatalog = await Catalog.findOne({ owner: req?.user?._id });
+  let catalog = await Catalog.findOne({ owner: req?.user?._id });
+  const catalogStatus = !catalog ? "created" : "updated";
 
-  if (!prevCatalog) {
-    const catalog = await Catalog.create({
+  if (!catalog) {
+    catalog = await Catalog.create({
       owner: req?.user?._id,
-      products,
+      count: products.length,
     });
-
     if (!catalog) {
       throw new ApiError(500, "Something went wrong while creating catalog");
     }
-
-    //   const data = await Catalog.aggregate([
-    //     {
-    //       $match: {
-    //         owner: new mongoose.Types.ObjectId(req?.user?._id),
-    //       },
-    //     },
-    //     {
-    //       $lookup: {},
-    //     },
-    //   ]);
-    console.log("Catalog: ", catalog);
-    return res
-      .status(200)
-      .json(new ApiResponse(200, catalog, "Catalog created successfully"));
+  } else {
+    catalog.count += products.length;
+    await catalog.save({ validateBeforeSave: false });
   }
 
-  prevCatalog.products = [...prevCatalog.products, products];
+  const productsToInsert = products.map((product) => {
+    return { product, catalog: catalog._id };
+  });
 
-  const newCatalog = await prevCatalog.save({ validateBeforeSave: false });
+  const catalogProducts = await CatalogProduct.insertMany(productsToInsert);
+  if (!catalogProducts) {
+    throw new ApiError(
+      500,
+      "Something went wrong while creation catalogProducts"
+    );
+  }
 
   return res
     .status(200)
-    .json(new ApiResponse(200, newCatalog, "Catalog updated successfully"));
+    .json(new ApiResponse(200, {}, `Catalog ${catalogStatus} successfully`));
 });
 
 const getOrders = asyncHandler(async (req, res) => {
+  const allOrders = [];
   const orders = await Order.find({ seller: req?.user?._id });
-  return res.status(200).json(new ApiResponse(200, orders, "Orders fetched"));
+
+  for (let order of orders) {
+    const orderObject = {
+      buyer: order.buyer,
+      seller: order.seller,
+      orderPrice: order.orderPrice,
+      orderStatus: order.orderStatus,
+      deliveryStatus: order.deliveryStatus,
+      isPaymentDone: order.isPaymentDone,
+      items: [],
+    };
+
+    const ordersList = [];
+    const orderItems = await OrderItem.find({ order: order._id }).select(
+      "product units"
+    );
+    for (let item of orderItems) {
+      const product = await Product.findById(item.product).select("name");
+      ordersList.push({ product, units: item.units });
+    }
+    orderObject.items = ordersList;
+
+    allOrders.push(orderObject);
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, allOrders, "Orders fetched"));
 });
 
 const createProduct = asyncHandler(async (req, res) => {
