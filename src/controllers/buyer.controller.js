@@ -6,7 +6,9 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 const getSellers = asyncHandler(async (req, res) => {
-  const sellers = await User.find({ userType: "SELLER" });
+  const sellers = await User.find({ userType: "SELLER" }).select(
+    "fullName username email"
+  );
   return res
     .status(200)
     .json(new ApiResponse(200, sellers, "List of sellers fetched"));

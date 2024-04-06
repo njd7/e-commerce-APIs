@@ -7,8 +7,8 @@ const productSchema = new Schema(
       required: true,
     },
     price: {
-      default: 0,
       type: Number,
+      required: true,
     },
     owner: {
       type: Schema.Types.ObjectId,

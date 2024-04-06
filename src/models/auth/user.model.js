@@ -31,7 +31,10 @@ const userSchema = new mongoose.Schema(
     userType: {
       type: String,
       required: true,
-      enum: AVAILABLE_USER_TYPES,
+      enum: {
+        values: AVAILABLE_USER_TYPES,
+        message: "Options available: BUYER and SELLER",
+      },
     },
     refreshToken: {
       type: String,
