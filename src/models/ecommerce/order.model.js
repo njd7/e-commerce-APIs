@@ -1,6 +1,8 @@
 import mongoose, { Schema } from "mongoose";
 import {
+  AVAILABLE_DELIVERY_STATUS_ENUM,
   AVAILABLE_ORDER_STATUS_ENUM,
+  DELIVERY_STATUS_ENUM,
   ORDER_STATUS_ENUM,
 } from "../../constants.js";
 
@@ -16,13 +18,6 @@ const orderSchema = new Schema(
       ref: "User",
       required: true,
     },
-    products: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Product",
-        required: true,
-      },
-    ],
     orderPrice: {
       type: Number,
       default: 0,
@@ -31,6 +26,11 @@ const orderSchema = new Schema(
       type: String,
       enum: AVAILABLE_ORDER_STATUS_ENUM,
       default: ORDER_STATUS_ENUM.PENDING,
+    },
+    deliveryStatus: {
+      type: String,
+      enum: AVAILABLE_DELIVERY_STATUS_ENUM,
+      default: DELIVERY_STATUS_ENUM.PENDING,
     },
     isPaymentDone: {
       type: Boolean,

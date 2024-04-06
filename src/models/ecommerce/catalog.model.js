@@ -7,13 +7,10 @@ const catalogSchema = new Schema(
       ref: "User",
       required: true,
     },
-    products: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "Product",
-        required: true,
-      },
-    ],
+    count: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
