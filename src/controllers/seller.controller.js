@@ -12,6 +12,9 @@ const createCatalog = asyncHandler(async (req, res) => {
 
   try {
     const { products } = req.body;
+
+    const uniqueProducts = [...new Set(products)];
+
     if (!products) {
       throw new ApiError(400, "Products required");
     }
@@ -34,7 +37,27 @@ const createCatalog = asyncHandler(async (req, res) => {
       await catalog.save({ validateBeforeSave: false });
     }
 
-    const productsToInsert = products.map((product) => {
+    const existingProducts = await CatalogProduct.find({
+      catalog: catalog._id,
+    }).select("product");
+
+    // console.log("existingProducts ", existingProducts.length, existingProducts);
+
+    const existingProductIds = existingProducts.map((item) =>
+      item.product.toString()
+    );
+
+    // console.log("existingProductIds ", existingProductIds);
+
+    const newProductIds = uniqueProducts.filter(
+      (item) => !existingProductIds.includes(item)
+    );
+
+    if (newProductIds.length === 0) {
+      throw new ApiError(400, "All products already exist");
+    }
+
+    const productsToInsert = newProductIds.map((product) => {
       return { product, catalog: catalog._id };
     });
 
@@ -51,6 +74,13 @@ const createCatalog = asyncHandler(async (req, res) => {
       .status(200)
       .json(new ApiResponse(200, {}, `Catalog ${catalogStatus} successfully`));
   } catch (error) {
+    if (error.code === 11000) {
+      // Duplicate key error
+      throw new ApiError(
+        400,
+        "Product with this name already exists in Catalog"
+      );
+    }
     throw new ApiError(500, "Internal Server Error");
   }
 });
