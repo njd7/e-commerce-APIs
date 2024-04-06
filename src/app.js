@@ -1,6 +1,27 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import swaggerJsdoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "E-Commerce API Documentation",
+      version: "1.0.0",
+      description: "Documentation for E-commerce marketplace APIs",
+    },
+    servers: [
+      {
+        url: "http://localhost:8000/", // Update with your server URL
+      },
+    ],
+  },
+  apis: ["./src/routes/*.js"], // Path to the API routes folder
+};
+
+const specs = swaggerJsdoc(options);
 
 const app = express();
 
@@ -10,6 +31,8 @@ app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(cookieParser());
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 // routes import
 
