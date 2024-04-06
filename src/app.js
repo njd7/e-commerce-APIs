@@ -34,6 +34,12 @@ app.use(cookieParser());
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
+app.get("/", (_, res) => {
+  res.send(
+    `<h1>E-commerce APIs: Hybr1d Assignment</h1><h3>Go to <a href="http://localhost:8000/api-docs">http://localhost:8000/api-docs</a> for swagger documentation UI</h3>`
+  );
+});
+
 // routes import
 
 import authRouter from "./routes/auth.routes.js";
