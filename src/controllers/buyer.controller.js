@@ -86,6 +86,15 @@ const getSellerCatalog = asyncHandler(async (req, res) => {
       })
         .select("product")
         .populate("product", "name price");
+      // [
+      //   {
+      //     product: {
+      //       name: name,
+      //       price: price,
+      //     },
+      //   },
+      //   {},....
+      // ];
 
       catalogObject.catalog = catalogProducts.map(({ product }) => product);
     }

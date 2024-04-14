@@ -101,13 +101,55 @@ const getOrders = asyncHandler(async (req, res) => {
         items: [],
       };
 
-      const orderItems = await OrderItem.find({ order: order._id }).select(
-        "product units"
-      );
-      for (let item of orderItems) {
-        const product = await Product.findById(item.product).select("name");
-        orderObject.items.push({ product, units: item.units });
-      }
+      // const orderItems = await OrderItem.find({ order: order._id }).select(
+      //   "product units"
+      // );
+      // // .populate("product", "name");
+      // // orderObject.items = orderItems;
+
+      // for (let item of orderItems) {
+      //   const product = await Product.findById(item.product).select("name");
+      //   orderObject.items.push({
+      //     productId: product._id,
+      //     name: product.name,
+      //     units: item.units,
+      //   });
+      // }
+
+      const orderItemsList = await OrderItem.aggregate([
+        {
+          $match: {
+            order: order._id,
+          },
+        },
+        {
+          $lookup: {
+            from: "products",
+            localField: "product",
+            foreignField: "_id",
+            as: "product",
+          },
+        },
+        {
+          $addFields: {
+            name: {
+              $first: "$product.name",
+            },
+            productId: {
+              $first: "$product._id",
+            },
+          },
+        },
+        {
+          $project: {
+            name: 1,
+            units: 1,
+            productId: 1,
+            _id: 0,
+          },
+        },
+      ]);
+      orderObject.items = orderItemsList;
 
       allOrders.push(orderObject);
     }
