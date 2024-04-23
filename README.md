@@ -1,4 +1,4 @@
-# E-commerce APIs: Hybr1d Assignment
+# E-commerce APIs
 
 ## Description
 
